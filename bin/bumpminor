@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 author email"
+    exit 1
+fi
+
+# Get git author and email
+NAME=$1
+EMAIL=$2
+
+# Set git author and email globally
+git config --global user.name "$NAME"
+git config --global user.email $2
+
+# Get next semver
+SEMVER=$(semver bump minor)
+
+# Set new semver to Version file
+echo $SEMVER > VERSION
+
+# Git commit and tag new semver
+git add VERSION
+git commit -m "Release v$SEMVER"
+git tag -a v$SEMVER -m "Release v$SEMVER"
+
+# Get user and group id for curret dir
+USERID=$(stat -c %u .)
+GROUPID=$(stat -c %g .)
+
+# Find and correct owner and group for files modified by root
+find . -user root -exec chown $USERID:$GROUPID {} \;

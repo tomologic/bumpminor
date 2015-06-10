@@ -6,6 +6,10 @@ test_res=0
 
 function get_git_version() {
     version=$(git describe)
+    if [ $? -eq 128 ]; then
+        # Return initial version incase no tags is found
+        echo "0.0.0"
+    fi
     echo $version
 }
 

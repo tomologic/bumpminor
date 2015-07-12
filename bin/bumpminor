@@ -13,15 +13,24 @@ EMAIL=$2
 git config --global user.name "$NAME"
 git config --global user.email $2
 
-# Get next semver
-SEMVER=$(semver bump minor)
+CUR_VERSION="$(cat VERSION)"
+# Check if current version is tagged
+([ -n "$CUR_VERSION" ] && ! git rev-parse "v$CUR_VERSION" > /dev/null 2>&1) && {
+    # Version exists in VERSION file but isn't tagged. Let's tag it
+    SEMVER=$CUR_VERSION
+} || {
+    # Current version exists, let's bump
 
-# Set new semver to Version file
-echo $SEMVER > VERSION
+    # Get next semver
+    SEMVER=$(semver bump minor)
+
+    # Set new semver to Version file
+    echo $SEMVER > VERSION
+    git add VERSION
+}
 
 # Git commit and tag new semver
-git add VERSION
-git commit -m "Release v$SEMVER"
+git commit -m "Release v$SEMVER"  --allow-empty
 git tag -a v$SEMVER -m "Release v$SEMVER"
 
 # Get user and group id for curret dir

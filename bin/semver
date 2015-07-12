@@ -31,7 +31,14 @@ function col_index() {
 
 function bump() {
     IFS='.' read -a array <<< "$1"
-    let array[$2]+=1
+    col=$2
+    # increase requested column
+    let array[$col]+=1
+    # reset all columns below
+    until [ $col -eq 2 ]; do
+        let col+=1
+        let array[$col]=0
+    done
     echo "${array[0]}.${array[1]}.${array[2]}"
 }
 
@@ -54,13 +61,13 @@ function print_help() {
 
 if [ "$1" == "test" ]; then
     echo $'\e[34mbump\e[0m'
-    assert $(bump "1.1.0" 0) "2.1.0"
+    assert $(bump "1.1.0" 0) "2.0.0"
     assert $(bump "0.1.0" 1) "0.2.0"
     assert $(bump "0.0.1" 2) "0.0.2"
-    assert $(bump "10.0.1" 2) "10.0.2"
-    assert $(bump "10.0.1" 2) "10.0.2"
-    assert $(bump "10.0.1" 0) "11.0.1"
-    assert $(bump "9.0.1" 0) "10.0.1"
+    assert $(bump "10.1.1" 0) "11.0.0"
+    assert $(bump "10.1.1" 1) "10.2.0"
+    assert $(bump "10.1.1" 2) "10.1.2"
+    assert $(bump "9.0.1" 0) "10.0.0"
 
     echo
     echo $'\e[34mclean_version\e[0m'

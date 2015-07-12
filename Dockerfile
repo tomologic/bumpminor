@@ -2,7 +2,7 @@ FROM debian:wheezy
 
 RUN apt-get update && \
     apt-get install -y git && \
-    apt-get clean
+    rm -rf /var/lib/apt/lists/*
 
 ADD bin/bumpminor /usr/bin/
 ADD bin/semver /usr/bin/
